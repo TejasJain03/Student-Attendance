@@ -17,7 +17,8 @@ const isLoggedIn = async (req, res, next) => {
     res.clearCookie("access_token", { httpOnly: true, expires: new Date(0) });
     res.status(401).send("Session Expired. Login Again!");
   }
-  req.user = data.user;
+  const user = await User.findById(data.user._id);
+  req.user = user;
   if (!req.user) throw new ExpressError(400, false, "User was not found");
 
   next();

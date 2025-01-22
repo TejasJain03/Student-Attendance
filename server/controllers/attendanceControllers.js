@@ -21,17 +21,48 @@ exports.markAttendance = async (req, res) => {
 
 // Controller to get daily attendance report
 exports.getDailyReport = async (req, res) => {
-  try {
-    const { date } = req.query;
+  const { date,  className } = req.params;
 
-    const attendance = await Attendance.find({ date }).populate(
-      "present absent"
+  const attendance = await Attendance.find({ date, class: className }).populate(
+    "present absent teacher"
+  );
+
+  // Initialize the report summary
+  const report = attendance.map((record) => {
+    const presentCount = record.present.length;
+    const absentCount = record.absent.length;
+    const totalStudents = presentCount + absentCount;
+
+    const presentGenderCounts = record.present.reduce(
+      (acc, student) => {
+        acc[student.gender.toLowerCase()]++;
+        return acc;
+      },
+      { boy: 0, girl: 0 }
     );
 
-    res.status(200).json(attendance);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    const absentGenderCounts = record.absent.reduce(
+      (acc, student) => {
+        acc[student.gender.toLowerCase()]++;
+        return acc;
+      },
+      { boy: 0, girl: 0 }
+    );
+
+    return {
+      _id: record._id,
+      date: record.date,
+      class: record.class,
+      teacher: record.teacher.name,
+      presentCount,
+      absentCount,
+      totalStudents,
+      presentGenderCounts,
+      absentGenderCounts,
+    };
+  });
+
+  res.status(200).json(report);
 };
 
 // Controller to get monthly attendance report

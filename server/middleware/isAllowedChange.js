@@ -1,7 +1,6 @@
 const isAllowedChange = (req, res, next) => {
-  const { role, isAllowedChange } = req.user;
-
-  if (role === "teacher" && isAllowedChange) {
+  const { role, isAllowedChanges } = req.user;
+  if (role === "teacher" && isAllowedChanges) {
     next();
   } else {
     res

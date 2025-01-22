@@ -14,7 +14,10 @@ router.post(
 );
 
 // Route to get daily attendance report
-router.get("/daily-report", attendanceController.getDailyReport);
+router.get(
+  "/daily-report/:className/:date",
+  attendanceController.getDailyReport
+);
 
 // Route to get monthly attendance report
 router.get("/monthly-report", attendanceController.getMonthlyReport);
