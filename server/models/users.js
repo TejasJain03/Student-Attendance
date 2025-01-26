@@ -4,7 +4,6 @@ const bcrypt = require("bcryptjs");
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  name: { type: String, required: true },
   role: { type: String, enum: ["admin", "teacher"], required: true },
   isAllowedChanges: { type: Boolean, default: false }, // Always present but relevant only for teachers
 });

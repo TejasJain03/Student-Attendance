@@ -17,7 +17,7 @@ exports.getStudentsByClass = async (req, res) => {
     }
 
     // Send the students as a JSON response
-    res.status(200).json(students);
+    res.status(200).json({students});
   } catch (error) {
     // If there's an error, send a 500 response
     console.error(error); // For debugging

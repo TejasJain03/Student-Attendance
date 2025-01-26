@@ -31,7 +31,7 @@ exports.loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
 
     generateToken(res, user);
-    res.json({ role: user.role });
+    res.status(200).json({ message: "Login successful", user: user });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
@@ -51,3 +51,8 @@ exports.logoutUser = async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
+
+exports.getUser = async (req, res) => {
+  const user = req.user
+  res.json({ user })
+}
