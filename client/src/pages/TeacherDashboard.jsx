@@ -2,11 +2,15 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
 const TeacherDashboard = () => {
-  const classes = [6, 7, 8, 9, 10]; // List of classes from 6th to 10th
+  const classes = [5,6, 7, 8, 9, 10]; // List of classes from 6th to 10th
   const navigate = useNavigate();
 
   const handleNavigate = (classNumber) => {
     navigate(`/class-details/${classNumber}`);
+  };
+
+  const handleAttendanceReport = (classNumber) => {
+    navigate(`/class-attendance-report/${classNumber}`);
   };
 
   return (
@@ -28,9 +32,15 @@ const TeacherDashboard = () => {
               </span>
               <button
                 onClick={() => handleNavigate(classNumber)}
-                className="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 transition"
+                className="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 transition mb-2"
               >
                 View Details
+              </button>
+              <button
+                onClick={() => handleAttendanceReport(classNumber)}
+                className="bg-green-500 text-white py-2 px-6 rounded-md hover:bg-green-600 transition"
+              >
+                Attendance Report
               </button>
             </div>
           ))}

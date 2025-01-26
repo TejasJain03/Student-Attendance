@@ -5,7 +5,8 @@ import TeacherDashboard from "./TeacherDashboard";
 const Dashboard = () => {
   const { user } = useAuth();
   if (!user) {
-    return <div>Please log in</div>;
+    window.location.href = "/login";
+    return null;
   }
 
   return (

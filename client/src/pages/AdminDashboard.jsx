@@ -28,7 +28,7 @@ const AdminDashboard = () => {
   }, []);
 
   const addTeacher = () => {
-    navigate("/add-teacher");
+    navigate("/admin/add-teacher");
   };
 
   const handleAllowChange = (isAllowed, teacherId) => async () => {
@@ -40,7 +40,6 @@ const AdminDashboard = () => {
           allowChanges: !isAllowed,
         }
       );
-
       // Optimistically update the UI
       setUsers((prevUsers) =>
         prevUsers.map((user) =>

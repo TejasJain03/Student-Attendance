@@ -12,6 +12,8 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AddTeacher from "./pages/AddTeacher";
 import ClassDetails from "./pages/ClassDetails";
+import TakeAttendance from "./pages/TakeAttendance";
+import AttendanceReport from "./pages/AttendanceReport";
 import { AuthProvider } from "./components/authProvider"; // Named import for AuthProvider
 
 const App = () => {
@@ -41,8 +43,16 @@ const App = () => {
             element={<ProtectedRoute element={<AddTeacher />} />}
           />
           <Route
-            path="/class-details/:className"
+            path="/class-details/:classNumber"
             element={<ProtectedRoute element={<ClassDetails />} />}
+          />
+          <Route
+            path="/class-attendance/:classNumber"
+            element={<ProtectedRoute element={<TakeAttendance />} />}
+          />
+          <Route
+            path="/class-attendance-report/:classNumber"
+            element={<ProtectedRoute element={<AttendanceReport />} />}
           />
         </Routes>
 

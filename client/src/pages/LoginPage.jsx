@@ -14,9 +14,7 @@ const LoginPage = () => {
     try {
       const response = await login({ username, password });
       console.log("Login response:", response);
-      const expirationTime = new Date().getTime() + 2 * 60 * 60 * 1000; // 2 hours from now
       localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("expirationTime", expirationTime);
       toast.success("Login successful!", {
         onClose: () => navigate("/dashboard"), // Navigate on toast close
       });

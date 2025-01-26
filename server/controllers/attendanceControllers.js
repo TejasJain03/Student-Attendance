@@ -3,12 +3,12 @@ const Attendance = require("../models/attendance");
 // Controller to mark attendance
 exports.markAttendance = async (req, res) => {
   try {
-    const { teacher, className, present, absent } = req.body;
+    const { teacher, classNumber, present, absent } = req.body;
     const { date } = req.params;
     const attendance = new Attendance({
       date,
       teacher,
-      class: className,
+      class: classNumber,
       present,
       absent,
     });
@@ -21,48 +21,64 @@ exports.markAttendance = async (req, res) => {
 
 // Controller to get daily attendance report
 exports.getDailyReport = async (req, res) => {
-  const { date,  className } = req.params;
+  try {
+    const { date, classNumber } = req.params;
 
-  const attendance = await Attendance.find({ date, class: className }).populate(
-    "present absent teacher"
-  );
+    // Fetch attendance records for the given date and class
+    const attendance = await Attendance.find({ date, class: classNumber })
+      .populate("present", "fullName gender") // Populate present students with their full name and gender
+      .populate("absent", "fullName gender") // Populate absent students with their full name and gender
+      .populate("teacher", "name"); // Populate teacher's name
 
-  // Initialize the report summary
-  const report = attendance.map((record) => {
-    const presentCount = record.present.length;
-    const absentCount = record.absent.length;
-    const totalStudents = presentCount + absentCount;
+    // Check if attendance records exist
+    if (!attendance || attendance.length === 0) {
+      return res.status(404).json({ message: "No attendance records found." });
+    }
 
-    const presentGenderCounts = record.present.reduce(
-      (acc, student) => {
-        acc[student.gender.toLowerCase()]++;
-        return acc;
-      },
-      { boy: 0, girl: 0 }
-    );
+    // Generate attendance report
+    const report = attendance.map((record) => {
+      const presentCount = record.present.length;
+      const absentCount = record.absent.length;
+      const totalStudents = presentCount + absentCount;
 
-    const absentGenderCounts = record.absent.reduce(
-      (acc, student) => {
-        acc[student.gender.toLowerCase()]++;
-        return acc;
-      },
-      { boy: 0, girl: 0 }
-    );
+      // Calculate gender counts for present students
+      const presentGenderCounts = record.present.reduce(
+        (acc, student) => {
+          acc[student.gender.toLowerCase()] = (acc[student.gender.toLowerCase()] || 0) + 1;
+          return acc;
+        },
+        { boy: 0, girl: 0 } // Initialize gender counts
+      );
 
-    return {
-      _id: record._id,
-      date: record.date,
-      class: record.class,
-      teacher: record.teacher.name,
-      presentCount,
-      absentCount,
-      totalStudents,
-      presentGenderCounts,
-      absentGenderCounts,
-    };
-  });
+      // Calculate gender counts for absent students
+      const absentGenderCounts = record.absent.reduce(
+        (acc, student) => {
+          acc[student.gender.toLowerCase()] = (acc[student.gender.toLowerCase()] || 0) + 1;
+          return acc;
+        },
+        { boy: 0, girl: 0 } // Initialize gender counts
+      );
+      return {
+        _id: record._id,
+        date: record.date,
+        class: record.class,
+        teacher: record.teacher.name, // Teacher's name
+        presentCount,
+        absentCount,
+        totalStudents,
+        presentGenderCounts,
+        absentGenderCounts,
+        presentStudents: record.present,
+        absentStudents: record.absent
+      };
+    });
 
-  res.status(200).json(report);
+    // Respond with the generated report
+    res.status(200).json(report);
+  } catch (error) {
+    console.error("Error fetching daily report:", error);
+    res.status(500).json({ message: "An error occurred while fetching the report.", error });
+  }
 };
 
 // Controller to get monthly attendance report

@@ -15,7 +15,7 @@ router.post(
 
 // Route to get daily attendance report
 router.get(
-  "/daily-report/:className/:date",
+  "/daily-report/:classNumber/:date",
   attendanceController.getDailyReport
 );
 
