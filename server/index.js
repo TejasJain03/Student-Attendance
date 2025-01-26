@@ -23,8 +23,8 @@ connectDB();
 const PORT = process.env.PORT || 5000;
 
 const corsOptions = {
-  //   origin: "https://attendance-client-woad.vercel.app",
-  origin: "http://localhost:5173",
+    origin: "https://student-attendance-client.vercel.app/",
+  // origin: "http://localhost:5173",
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 };
