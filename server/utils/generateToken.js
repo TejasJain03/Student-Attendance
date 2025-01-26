@@ -1,20 +1,24 @@
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 
 const generateToken = (res, user) => {
   const payload = {
     user: user,
-  }
-  const token = jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: '1d',
-  })
-  res.cookie('access_token', token, {
-    sameSite: "none",    // uncomment it while deployment
-    // sameSite: 'lax', // comment it while deployment
-    path: '/',
-    expires: new Date(new Date().getTime() + 2 * 60 * 60 * 1000),
-    httpOnly: true,
-    secure: true, // uncomment it while deployment
-  })
-}
+  };
 
-module.exports = generateToken
+  // Generate JWT token
+  const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: '1d',  // The token expires in 1 day
+  });
+
+  // Set JWT token as HttpOnly cookie
+  res.cookie('access_token', token, {
+    sameSite: 'none',    // Use 'none' when deploying (cross-origin cookies)
+    // sameSite: 'lax',   // Use 'lax' during development for local cookies
+    path: '/',
+    expires: new Date(new Date().getTime() + 1 * 24 * 60 * 60 * 1000),  // Token expiry of 1 day (matching JWT expiry)
+    httpOnly: true,      // Prevents JavaScript from accessing the cookie
+    secure: true,        // Use 'secure: true' when deploying (only send over HTTPS)
+  });
+};
+
+module.exports = generateToken;
