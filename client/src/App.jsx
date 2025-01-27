@@ -22,8 +22,6 @@ const App = () => {
   return (
     <AuthProvider>
       <Router>
-        {/* Navbar is rendered for all routes except /login */}
-
         <Routes>
           <Route
             path="/"
