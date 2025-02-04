@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const xlsx = require("xlsx");
-const Student = require("../models/student"); // Assuming your model is in the 'Student.js' file
+const Student = require("../models/student");
+const AcademicRecord = require("../models/academicRecord");
 
 const MONGO_URI =
   "mongodb+srv://TejasJain03:vownP7Xp7j2NLO9C@cluster0.0ldxy2n.mongodb.net/student-attendence?retryWrites=true&w=majority";
@@ -19,36 +20,57 @@ mongoose
 // Function to read Excel file and insert data into MongoDB
 async function readExcelAndInsertData() {
   try {
-    // Load the Excel file
-    const workbook = xlsx.readFile("SampleTest.xlsx"); // Replace with your actual file path
-
-    // Select the "ALL" sheet
+    const workbook = xlsx.readFile("SampleTest.xlsx"); // Replace with actual file path
     const sheet = workbook.Sheets["Sheet1"];
-
-    // Convert the sheet to JSON (with headers as keys)
     const data = xlsx.utils.sheet_to_json(sheet, { header: 1 });
 
-    // Get the header row (the first row)
+    // Get header row
     const headerRow = data[0];
 
-    // Get column indices for required columns
-    const classIndex = headerRow.indexOf("Class");
+    // Get column indices
     const fullNameIndex = headerRow.indexOf("FULL NAME");
     const genderIndex = headerRow.indexOf("Gender");
     const yearOfAdmissionIndex = headerRow.indexOf("Year of Admission");
+    const classIndex = headerRow.indexOf("Class");
 
-    // Loop through each row (skip header row) and insert data
-    const studentData = data.slice(1).map((row) => ({
-      class: row[classIndex],
-      fullName: row[fullNameIndex],
-      gender: row[genderIndex],
-      yearOfAdmission: row[yearOfAdmissionIndex],
-    }));
+    // Process each row (excluding header)
+    for (const row of data.slice(1)) {
+      const fullName = row[fullNameIndex];
+      const gender = row[genderIndex];
+      const yearOfAdmission = row[yearOfAdmissionIndex];
+      const studentClass = row[classIndex];
 
-    // Insert the data into MongoDB
-    await Student.insertMany(studentData);
+      if (!fullName || !gender || !yearOfAdmission || !studentClass) continue; // Skip invalid rows
 
-    console.log(`${studentData.length} records inserted successfully`);
+      // **Check if student exists** (by name & yearOfAdmission)
+      let student = await Student.findOne({ fullName, yearOfAdmission });
+
+      if (!student) {
+        student = await Student.create({
+          fullName,
+          gender,
+          yearOfAdmission,
+        });
+      }
+
+      // **Check if AcademicRecord exists for this student & class**
+      const existingRecord = await AcademicRecord.findOne({
+        student: student._id,
+        academicYear: "2024-2025",
+        currentClass: studentClass,
+      });
+
+      if (!existingRecord) {
+        await AcademicRecord.create({
+          student: student._id,
+          academicYear: "2024-2025",
+          currentClass: studentClass,
+          promoted: false,
+        });
+      }
+    }
+
+    console.log("Data import completed successfully");
     mongoose.disconnect();
   } catch (error) {
     console.error("Error reading Excel or inserting data", error);

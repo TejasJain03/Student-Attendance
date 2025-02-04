@@ -10,7 +10,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate("/login"); // Redirect to login only when loading is complete and user is not found
+      navigate("/login"); 
     }
   }, [user, loading, navigate]); // Add loading to dependencies
 

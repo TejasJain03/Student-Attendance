@@ -14,6 +14,7 @@ const ClassDetails = () => {
     axios
       .get(`/students/${classNumber}`)
       .then((response) => {
+        console.log(response.data)
         setStudents(response.data.students);
       })
       .catch((error) => {

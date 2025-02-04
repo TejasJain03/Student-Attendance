@@ -1,28 +1,24 @@
-const Student = require("../models/student"); // Assuming you have a Student model
+const Student = require("../models/student");
+const AcademicRecord = require("../models/academicRecord");
 
 // Controller to get students by class
 exports.getStudentsByClass = async (req, res) => {
   try {
-    // Get the class from the request parameters
     const { classNumber } = req.params;
 
-    // Find all students with the given class
-    const students = await Student.find({ class: classNumber });
+    // Find academic records for the given class and populate the student details
+    const academicRecords = await AcademicRecord.find({ currentClass: classNumber }).populate("student");
 
-    // If no students are found
+    // Extract student details
+    const students = academicRecords.map((record) => record.student);
+
     if (students.length === 0) {
-      return res
-        .status(404)
-        .json({ message: `No students found for class: ${classNumber}` });
+      return res.status(404).json({ message: `No students found for class: ${classNumber}` });
     }
 
-    // Send the students as a JSON response
     res.status(200).json({ students });
   } catch (error) {
-    // If there's an error, send a 500 response
-    console.error(error); // For debugging
-    res
-      .status(500)
-      .json({ message: "Error fetching students", error: error.message });
+    console.error("Error fetching students:", error);
+    res.status(500).json({ message: "Error fetching students", error: error.message });
   }
 };
