@@ -7,30 +7,26 @@ import "tailwindcss/tailwind.css";
 const ClassDetails = () => {
   const [students, setStudents] = useState([]);
   const { classNumber } = useParams();
-
   const [isAllowed, setIsAllowed] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get(`/students/${classNumber}`)
-      .then((response) => {
-        console.log(response.data)
-        setStudents(response.data.students);
-      })
-      .catch((error) => {
-        console.error("There was an error fetching the students!", error);
-      });
+    const fetchData = async () => {
+      try {
+        const studentsResponse = await axios.get(`/students/${classNumber}`);
+        setStudents(studentsResponse.data.students);
 
-    axios
-      .get("/users/isallowed")
-      .then((response) => {
-        console.log(response.data);
-        setIsAllowed(response.data.allowed);
-      })
-      .catch((error) => {
-        console.error("There was an error checking permissions!", error);
-      });
-  }, []);
+        const allowedResponse = await axios.get("/users/isallowed");
+        setIsAllowed(allowedResponse.data.allowed);
+      } catch (error) {
+        console.error("There was an error fetching the data!", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [classNumber]);
 
   const totalStudents = students.length;
   const totalBoys = students.filter(
@@ -43,10 +39,17 @@ const ClassDetails = () => {
   const navigate = useNavigate();
 
   const handleTakeAttendance = () => {
-    // Logic for taking attendance
     console.log("Taking attendance...");
     navigate(`/class-attendance/${classNumber}`);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
